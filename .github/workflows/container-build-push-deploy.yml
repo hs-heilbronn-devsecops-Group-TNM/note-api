@@ -57,14 +57,15 @@ jobs:
       id: set-project-id
       shell: bash
       run: |
-        echo "GRC_PROJECT_ID=hs-heilbronn-devsecops" >> $GITHUB_ENV
-        echo "GRC_ARTIFACTORY_REPO=note-api-hs-heilbronn-devsecops-group-tnm" >> $GITHUB_ENV
+        echo "grc_project_id=hs-heilbronn-devsecops" >> $GITHUB_ENV
+        echo "grc_artifactory_repo=note-api-hs-heilbronn-devsecops-group-tnm" >> $GITHUB_ENV
 
 
   build-and-push-container:
     runs-on: ubuntu-latest
-    needs: envs  # Depends on envs job to access its outputs
-    if: ${{ github.event_name != 'workflow_dispatch' && github.event.workflow_run.conclusion == 'success' }}
+    needs: envs  
+
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
     - name: Checkout repository
