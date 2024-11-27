@@ -108,13 +108,14 @@ jobs:
 
     - name: Copy Image to Google Artifact Registry
       env:
-        GCP_KEY_FILE: ${{ secrets.GCP_KEY_FILE }}
         PROJECT_ID: ${{ env.PROJECT_ID }}
         ARTIFACTORY_REPO: ${{ env.ARTIFACTORY_REPO }}
       run: |
-        echo "${GCP_KEY_FILE}" > keyfile.json
-        gcloud auth activate-service-account --key-file=keyfile.json
-        skopeo copy --dest-creds="$(gcloud auth print-access-token):" \
+        # Authenticate and retrieve an access token
+        ACCESS_TOKEN=$(gcloud auth print-access-token)
+
+        # Copy the image
+        skopeo copy --dest-creds="${ACCESS_TOKEN}:" \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
           docker://europe-west3-docker.pkg.dev/${PROJECT_ID}/${ARTIFACTORY_REPO}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
 
