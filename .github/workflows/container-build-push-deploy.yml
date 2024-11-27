@@ -111,10 +111,9 @@ jobs:
         # Authenticate and retrieve an access token
         ACCESS_TOKEN=$(gcloud auth print-access-token)
         echo "${ACCESS_TOKEN}"
-        echo "${{ ACCESS_TOKEN }}"
 
         # Copy the image
-        skopeo copy --dest-creds="${{ACCESS_TOKEN}}:" \
+        skopeo copy --dest-creds="${ACCESS_TOKEN}:" \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
           docker://europe-west3-docker.pkg.dev/${{ needs.envs.outputs.grc_project_id }}/${{ needs.envs.outputs.grc_artifactory_repo }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
 
