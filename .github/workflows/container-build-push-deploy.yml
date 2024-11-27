@@ -87,7 +87,7 @@ jobs:
 
   deploy-to-google-cloud-run:
     runs-on: ubuntu-latest
-    needs: build-and-push-container
+    needs: [build-and-push-container, envs]
 
     permissions:
       contents: 'read'
@@ -108,8 +108,8 @@ jobs:
 
     - name: Copy Image to Google Artifact Registry
       env:
-        PROJECT_ID: ${{ env.PROJECT_ID }}
-        ARTIFACTORY_REPO: ${{ env.ARTIFACTORY_REPO }}
+        PROJECT_ID: ${{ needs.envs.outputs.grc_project_id }}
+        ARTIFACTORY_REPO: ${{ needs.envs.outputs.grc_artifactory_repo }}
       run: |
         # Authenticate and retrieve an access token
         ACCESS_TOKEN=$(gcloud auth print-access-token)
