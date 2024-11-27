@@ -18,6 +18,8 @@ jobs:
       repo_owner: ${{ steps.set-env.outputs.repo_owner }}
       repo_name: ${{ steps.set-env.outputs.repo_name }}
       tag: ${{ steps.set-tag.outputs.tag }}
+      grc_project_id: ${{ steps.set-project-id.outputs.grc_project_id }}
+      grc_artifactory_repo: ${{ steps.set-project-id.outputs.grc_artifactory_repo }}
     permissions:
       contents: read  # Required to read repository metadata
     steps:
@@ -51,6 +53,12 @@ jobs:
           echo "tag=main-release-${{ steps.date.outputs.date }}-sha-${{ env.COMMIT_HASH_SHORT }}" >> $GITHUB_ENV
           echo "::set-output name=tag::main-release-${{ steps.date.outputs.date }}-sha-${{ env.COMMIT_HASH_SHORT }}"
         fi
+    - name: Set Project ID and Artifact Registry Repository Name
+      shell: bash
+      run: |
+        echo "GRC_PROJECT_ID=hs-heilbronn-devsecops" >> $GITHUB_ENV
+        echo "GRC_ARTIFACTORY_REPO=note-api-hs-heilbronn-devsecops-group-tnm" >> $GITHUB_ENV
+
 
   build-and-push-container:
     runs-on: ubuntu-latest
@@ -91,12 +99,30 @@ jobs:
         workload_identity_provider: 'projects/70756149774/locations/global/workloadIdentityPools/github-actions/providers/github-repos'
         service_account: 'hshn-devsecops-service-account@hs-heilbronn-devsecops.iam.gserviceaccount.com'
 
+    - name: Install Skopeo
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y skopeo
+
+    - name: Copy Image to Google Artifact Registry
+      env:
+        GCP_KEY_FILE: ${{ secrets.GCP_KEY_FILE }}
+        PROJECT_ID: ${{ env.PROJECT_ID }}
+        ARTIFACTORY_REPO: ${{ env.ARTIFACTORY_REPO }}
+      run: |
+        echo "${GCP_KEY_FILE}" > keyfile.json
+        gcloud auth activate-service-account --key-file=keyfile.json
+        skopeo copy --dest-creds="$(gcloud auth print-access-token):" \
+          docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
+          docker://europe-west3-docker.pkg.dev/${PROJECT_ID}/${ARTIFACTORY_REPO}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
+
 
     - id: 'deploy'
       uses: 'google-github-actions/deploy-cloudrun@v2'
       with:
         service: 'note-api-hs-heilbronn-devsecops-group-tnm'
-        image: 'ghcr.io/hs-heilbronn-devsecops-group-tnm/note-api:main-release-2024-11-21-sha-442db75'
+        #image: 'ghcr.io/hs-heilbronn-devsecops-group-tnm/note-api:main-release-2024-11-21-sha-442db75' # Old version
+        image: 'europe-west3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACTORY_REPO }}/note-api:${{ needs.envs.outputs.tag }}'
         region: 'europe-west3'
         env_vars: |-
           BACKEND=memory
