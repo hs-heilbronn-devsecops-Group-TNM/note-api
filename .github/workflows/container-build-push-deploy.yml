@@ -107,25 +107,23 @@ jobs:
         sudo apt-get install -y skopeo
 
     - name: Copy Image to Google Artifact Registry
-      env:
-        PROJECT_ID: ${{ needs.envs.outputs.grc_project_id }}
-        ARTIFACTORY_REPO: ${{ needs.envs.outputs.grc_artifactory_repo }}
       run: |
         # Authenticate and retrieve an access token
         ACCESS_TOKEN=$(gcloud auth print-access-token)
+        echo "${ACCESS_TOKEN}"
+        echo "${{ ACCESS_TOKEN }}"
 
         # Copy the image
-        skopeo copy --dest-creds="${ACCESS_TOKEN}:" \
+        skopeo copy --dest-creds="${{ACCESS_TOKEN}}:" \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
-          docker://europe-west3-docker.pkg.dev/${PROJECT_ID}/${ARTIFACTORY_REPO}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
-
+          docker://europe-west3-docker.pkg.dev/${{ needs.envs.outputs.grc_project_id }}/${{ needs.envs.outputs.grc_artifactory_repo }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
 
     - id: 'deploy'
       uses: 'google-github-actions/deploy-cloudrun@v2'
       with:
         service: 'note-api-hs-heilbronn-devsecops-group-tnm'
         #image: 'ghcr.io/hs-heilbronn-devsecops-group-tnm/note-api:main-release-2024-11-21-sha-442db75' # Old version
-        image: 'europe-west3-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.ARTIFACTORY_REPO }}/note-api:${{ needs.envs.outputs.tag }}'
+        image: 'europe-west3-docker.pkg.dev/${{ needs.envs.outputs.grc_project_id }}/${{ needs.envs.outputs.grc_artifactory_repo }}/note-api:${{ needs.envs.outputs.tag }}'
         region: 'europe-west3'
         env_vars: |-
           BACKEND=memory
