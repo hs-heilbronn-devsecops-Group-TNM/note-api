@@ -114,6 +114,7 @@ jobs:
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
         # Authenticate and retrieve an access token
+        gcloud auth print-access-token
         ACCESS_TOKEN=$(gcloud auth print-access-token)
 
         # Copy the image
