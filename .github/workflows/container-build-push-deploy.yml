@@ -117,6 +117,7 @@ jobs:
 
         # Copy the image
         skopeo copy \
+          --dest-registry-token "${{ steps.google-auth.outputs.access_token }}" \
           --dest-compress \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
           docker://europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}
