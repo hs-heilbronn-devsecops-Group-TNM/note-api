@@ -114,7 +114,7 @@ jobs:
       run: |
         # Log in to GitHub Container Registry
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        
+
         # Sync the image
         gcloud auth configure-docker europe-west3-docker.pkg.dev
         skopeo sync \
@@ -129,7 +129,7 @@ jobs:
       uses: 'google-github-actions/deploy-cloudrun@v2'
       with:
         service: 'note-api-hs-heilbronn-devsecops-group-tnm'
-        image: 'europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/cloud-run-source-deploy/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}'
+        image: 'europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}'
         region: 'europe-west3'
         env_vars: |-
           BACKEND=memory
