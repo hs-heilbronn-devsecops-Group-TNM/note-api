@@ -99,13 +99,6 @@ jobs:
     - uses: 'google-github-actions/auth@v2'
       with:
         workload_identity_provider: 'projects/70756149774/locations/global/workloadIdentityPools/github-actions/providers/github-repos'
-        service_account: 'hshn-devsecops-service-account@hs-heilbronn-devsecops.iam.gserviceaccount.com'
-    
-    - name: Log in to GitHub Container Registry
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      shell: bash
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
     - name: Install Skopeo
       run: |
@@ -117,8 +110,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
         # Log in to GitHub Container Registry
-        echo "${{ secrets.GITHUB_TOKEN }}"
-        docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
         # Authenticate and retrieve an access token
         ACCESS_TOKEN=$(gcloud auth print-access-token)
