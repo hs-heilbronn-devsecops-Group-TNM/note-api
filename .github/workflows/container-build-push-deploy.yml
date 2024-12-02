@@ -117,10 +117,13 @@ jobs:
         ACCESS_TOKEN=$(gcloud auth print-access-token)
 
         # Copy the image
-        skopeo copy --dest-creds="${ACCESS_TOKEN}:" \
+        skopeo copy \
+          --dest-creds="${ACCESS_TOKEN}:" \
+          --dest-compress \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
-          docker://europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/cloud-run-source-deploy/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}
-          # original docker://europe-west3-docker.pkg.dev/${{ needs.envs.outputs.grc_project_id }}/${{ needs.envs.outputs.grc_artifactory_repo }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
+          docker://europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}
+          #docker://europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/cloud-run-source-deploy/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}
+
 
     - id: 'deploy'
       uses: 'google-github-actions/deploy-cloudrun@v2'
