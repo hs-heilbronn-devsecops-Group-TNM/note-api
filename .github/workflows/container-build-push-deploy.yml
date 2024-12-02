@@ -98,8 +98,11 @@ jobs:
     - uses: 'actions/checkout@v4'
 
     - uses: 'google-github-actions/auth@v2'
+      id: 'google-auth'
       with:
         workload_identity_provider: 'projects/70756149774/locations/global/workloadIdentityPools/github-actions/providers/github-repos'
+        service_account: 'hshn-devsecops-service-account@hs-heilbronn-devsecops.iam.gserviceaccount.com'
+        token_format: 'access_token'
 
     - name: Install Skopeo
       run: |
@@ -113,13 +116,9 @@ jobs:
         # Log in to GitHub Container Registry
         echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-        # Authenticate and retrieve an access token
-        gcloud auth print-access-token
-        ACCESS_TOKEN=$(gcloud auth print-access-token)
-
         # Copy the image
         skopeo copy \
-          --dest-creds="${ACCESS_TOKEN}:" \
+          --dest-creds="${{ steps.google-auth.outputs.access_token }}:" \
           --dest-compress \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
           docker://europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/note-api-hs-heilbronn-devsecops-group-tnm/note-api:${{ needs.envs.outputs.tag }}
