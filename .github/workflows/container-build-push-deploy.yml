@@ -118,7 +118,7 @@ jobs:
         ACCESS_TOKEN=$(gcloud auth print-access-token)
 
         # Copy the image
-        skopeo copy --dest-creds="${ACCESS_TOKEN}:" \
+        skopeo copy \ #--dest-creds="${ACCESS_TOKEN}:" \
           docker://ghcr.io/${{ needs.envs.outputs.repo_owner }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }} \
           docker://europe-west3-docker.pkg.dev/hs-heilbronn-devsecops/cloud-run-source-deploy/note-api-hs-heilbronn-devsecops-group-tnm/note-api:main-release-2024-11-27-sha-7d18070
           # original docker://europe-west3-docker.pkg.dev/${{ needs.envs.outputs.grc_project_id }}/${{ needs.envs.outputs.grc_artifactory_repo }}/${{ needs.envs.outputs.repo_name }}:${{ needs.envs.outputs.tag }}
