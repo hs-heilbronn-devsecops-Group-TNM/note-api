@@ -16,8 +16,6 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       tag: ${{ steps.set-tag.outputs.tag }}
-      grc_project_id: ${{ steps.set-project-id.outputs.grc_project_id }}
-      grc_artifactory_repo: ${{ steps.set-project-id.outputs.grc_artifactory_repo }}
     permissions:
       contents: read  # Required to read repository metadata
     steps:
