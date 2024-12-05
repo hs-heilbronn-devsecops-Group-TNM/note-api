@@ -53,13 +53,6 @@ jobs:
           echo "tag=main-release-${{ steps.date.outputs.date }}-sha-${{ env.COMMIT_HASH_SHORT }}" >> $GITHUB_ENV
           echo "::set-output name=tag::main-release-${{ steps.date.outputs.date }}-sha-${{ env.COMMIT_HASH_SHORT }}"
         fi
-    - name: Set Project ID and Artifact Registry Repository Name
-      id: set-project-id
-      shell: bash
-      run: |
-        echo "grc_project_id=hs-heilbronn-devsecops" >> $GITHUB_ENV
-        echo "grc_artifactory_repo=note-api-hs-heilbronn-devsecops-group-tnm" >> $GITHUB_ENV
-
 
   build-and-push-container:
     runs-on: ubuntu-latest
