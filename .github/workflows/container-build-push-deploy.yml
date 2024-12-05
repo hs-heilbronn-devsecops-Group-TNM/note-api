@@ -111,7 +111,6 @@ jobs:
         # Sync the image
         gcloud auth configure-docker europe-west3-docker.pkg.dev
         skopeo sync \
-          --debug \
           --src docker \
           --dest docker \
           --dest-registry-token "${{ steps.google-auth.outputs.access_token }}" \
