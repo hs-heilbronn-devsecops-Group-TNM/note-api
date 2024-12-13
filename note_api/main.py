@@ -10,8 +10,11 @@ from .backends import Backend, RedisBackend, MemoryBackend, GCSBackend
 from .model import Note, CreateNoteRequest
 
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 app = FastAPI()
+FastAPIInstrumentor.instrument_app(app)
+RequestsInstrumentor().instrument()
 
 my_backend: Optional[Backend] = None
 
@@ -65,4 +68,3 @@ def create_note(request: CreateNoteRequest,
     backend.set(note_id, request)
     return note_id
 
-FastAPIInstrumentor.instrument_app(app)
